@@ -1,5 +1,7 @@
 import csv
+import os
 
+username = os.environ['SPOTIPY_USERNAME']
 
 # Checks if playlist exist. Crates one if not.
 # Returns playlist id.
