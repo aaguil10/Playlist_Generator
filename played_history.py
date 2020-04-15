@@ -4,7 +4,6 @@ import pprint
 import csv
 import os
 from common import for_each_element_in_history
-from common import in_file
 
 
 username = os.environ['SPOTIPY_USERNAME']
@@ -61,7 +60,7 @@ def add_from_history_playlist():
 
 def clean_playlist(playlist_name):
     playlist_id = create_playlist(sp, playlist_name, '')
-    results = sp.playlist_tracks(playlist_id, limit=2)
+    results = sp.playlist_tracks(playlist_id)
     remove_tracks = []
     for result in results['items']:
         track_id = result['track']['id']
@@ -81,6 +80,7 @@ def clean_playlist(playlist_name):
 
 def clean_playlists():
     clean_playlist('new_music_friday_6')
+    clean_playlist('the_charts')
 
 sp = getSpotipy()
 
