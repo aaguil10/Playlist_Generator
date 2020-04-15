@@ -4,6 +4,7 @@ import pprint
 import csv
 import os
 from common import for_each_element_in_history
+from common import in_file
 
 
 username = os.environ['SPOTIPY_USERNAME']
@@ -58,15 +59,38 @@ def add_from_history_playlist():
         sp.user_playlist_remove_all_occurrences_of_tracks(username, history_id, [track['id']])
 
 
-def add_dupicate_tracks(id):
-    track = sp.track(id)
-    print(track)
+def clean_playlist(playlist_name):
+    playlist_id = create_playlist(sp, playlist_name, '')
+    results = sp.playlist_tracks(playlist_id, limit=2)
+    remove_tracks = []
+    for result in results['items']:
+        track_id = result['track']['id']
+        if in_file(track_id):
+            remove_tracks.append(track_id)
+    while results['next']:
+        results = sp.next(results)
+        for result in results['items']:
+            track_id = result['track']['id']
+            if in_file(track_id):
+                remove_tracks.append(track_id)
+#    for track in remove_tracks:
+#        print('removing : ' + str(remove_tracks))
+    print('Removing ' + str(len(remove_tracks)) + ' tracks from ' + playlist_name)
+    sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, remove_tracks)
 
+
+def clean_playlists():
+    clean_playlist('new_music_friday_6')
 
 sp = getSpotipy()
 
-
+# Test
 #for_each_element_in_history(add_dupicate_tracks)
 #add_saved_to_played_history(sp)
+#add_recents_to_played_history(sp)
+#clean_playlist('new_music_friday_6')
+
+# Main
 add_recents_to_played_history(sp)
 add_from_history_playlist()
+clean_playlists()
