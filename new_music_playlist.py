@@ -98,9 +98,9 @@ def search_through_albums(artist_id):
         add_recent_tracks(results, artist_id)
 
 sp = getSpotipy()
-playlist_id = create_playlist(sp, 'new_music_friday_7', 'All new music released after last friday')
+playlist_id = create_playlist(sp, 'new_music_friday_6', 'All new music released after last friday')
 
-ids = load_data('saved_artists.csv')
+ids = load_data('saved_artist.csv')
 for id in ids:
     search_through_albums(id)
 

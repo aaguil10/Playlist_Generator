@@ -1,5 +1,6 @@
 from spotify_auth import getSpotipy
 from common import create_playlist
+from common import in_file
 import csv
 
 
@@ -86,7 +87,91 @@ def create_saved_artist_cvs_sorted(sp):
         writer.writeheader()
         for artist in artists_list:
             writer.writerow({'id': artist['id'], 'name': artist['name'], 'uri': artist['uri'], ARTIST_OCCURRENCES_KEY: artist[ARTIST_OCCURRENCES_KEY]})
+            
+def get_id_from(obj):
+    return obj['id']
+
+def add_artist_albums(artist_id, albums):
+    results = sp.artist_albums(artist_id)
+    for result in results['items']:
+        if result['uri'] not in albums:
+            albums.append(result['uri'])
+    while results['next']:
+        results = sp.next(results)
+        for result in results['items']:
+            if result['uri'] not in albums:
+                albums.append(result['uri'])
+
+
+def get_tracks_from_album_tracks_csv(album_id):
+    result = []
+    with open('album_tracks.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+#                print('row[2]: ' + row[2] + ' album_id: ' + album_id)
+                if row[2] == album_id:
+                    result.append({'id': row[0], 'name': row[1]})
+            line_count += 1
+    return result
+
+# Gets album id returns list of track id with name
+def save_album_tracks(album_id):
+    tracks = get_tracks_from_album_tracks_csv(album_id)
+    if len(tracks) == 0:
+        album = sp.album(album_id)
+        with open('album_tracks.csv', 'a', newline='') as csvfile:
+            fieldnames = ['id', 'name', 'album_id']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for trk in album['tracks']['items']:
+                writer.writerow({'id': trk['id'], 'name': trk['name'], 'album_id': album_id})
+        tracks = save_album_tracks(album_id)
+    return tracks
+
+def get_duplicates(track):
+    current_track_name = track['name']
+    duplicates = []
+    albums = []
+    for artist in track['artists']:
+        add_artist_albums(artist['id'], albums)
+    for a in albums:
+        album_tracks = save_album_tracks(a)
+        for trk in album_tracks:
+            if trk['name'] == current_track_name:
+                duplicates.append(trk)
+    return duplicates
+
+def add_to_cvs(track):
+    if not in_file('played_history.csv', track['id']):
+        with open('played_history.csv', 'a', newline='') as csvfile:
+            print('Added ' + track['name'])
+            fieldnames = ['id', 'name', 'uri']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writerow({'id': track['id'], 'name': track['name'], 'uri': track['uri']})
+
+def add_to_track_duplicates(track_id):
+    track = sp.track(track_id)
+    print('Searching for duplicates of ' + track['name'])
+    duplicates = get_duplicates(track)
+    for trk in duplicates:
+        add_to_cvs(trk)
+        
+
+def deep_clean():
+    with open('played_history.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                add_to_track_duplicates(row[0])
+            line_count += 1
+
+
 
 sp = getSpotipy()
-create_saved_artist_cvs_sorted(sp)
+deep_clean()
+
+#create_saved_artist_cvs_sorted(sp)
 #create_saved_artist_cvs(sp)
