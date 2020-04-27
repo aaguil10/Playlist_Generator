@@ -11,11 +11,32 @@ username = os.environ['SPOTIPY_USERNAME']
 
 
 
-#sp = getSpotipy()
+sp = getSpotipy()
 #generate_aritst_cvs('jessica_music_dump', 'jessica_artist.csv')
-#results = sp.artist_albums('0oeUdHJ3cy1oveb8WguJJt', limit=2)
-#print(results)
 
+# spotify:playlist:2a7xasL3VvF85iJ38jxgFJ
+#results = sp.artist_albums('5aIqB5nVVvmFsvSdExz408', album_type='single')
+#for result in results['items']:
+#    print(result['release_date'] + ' album_type: ' + result['album_type'] + ' ' + result['name'])
+#while results['next']:
+#    print('---')
+#    results = sp.next(results)
+#    for result in results['items']:
+#        print(result['release_date'] + ' album_type: ' + result['album_type'] + ' ' + result['name'])
+ 
+#print('*****')
+#
+#results = sp.artist_albums('2a7xasL3VvF85iJ38jxgFJ', album_type='album')
+#for result in results['items']:
+#    print(result['release_date'] + ' album_type: ' + result['album_type'] + ' ' + result['name'])
+#while results['next']:
+#    print('---')
+#    results = sp.next(results)
+#    for result in results['items']:
+#        print(result['release_date'] + ' album_type: ' + result['album_type'] + ' ' + result['name'])
+#
+#print('*****')
+ 
 
 #create_saved_artist_cvs(sp)
 #playlist_id = create_playlist(sp, 'my_test_playlist', 'Some thing')

@@ -23,9 +23,11 @@ def create_playlist(sp, name, description):
 
 def released_last_friday(album_date):
     try:
+        last_last_friday = datetime.now() + relativedelta(weekday=FR(-2))
         last_friday = datetime.now() + relativedelta(weekday=FR(-1))
         curr_date = datetime.strptime(album_date, '%Y-%m-%d')
-        return curr_date.date() >= last_friday.date()
+        if curr_date.date() <= last_friday.date():
+            return curr_date.date() > last_last_friday.date()
     except Exception as e:
         try:
             last_friday = datetime.now() + relativedelta(weekday=FR(-1))
@@ -82,26 +84,30 @@ def add_recent_tracks(results, artist_id):
         return
     for result in results['items']:
         if should_add_to_list(result):
-            print('id: ' + result['id'] +
+            print( 'release_date: ' + result['release_date'] +
+            ' id: ' + result['id'] +
                     ' name: ' + result['name'] +
-                    ' release_date: ' + result['release_date'] +
                     ' album_group: ' + result['album_group'] +
                     ' album_type: ' + result['album_type'])
+            if result['release_date'] not in accepted_dates:
+                accepted_dates.append(result['release_date'])
             track_ids = get_album_track_ids(sp.album(result['uri']), artist_id)
             add_to_playlist(track_ids)
 
 def search_through_albums(artist_id):
-    results = sp.artist_albums(artist_id, limit=50)
+    results = sp.artist_albums(artist_id, album_type='album')
     add_recent_tracks(results, artist_id)
-    while results['next']:
-        results = sp.next(results)
-        add_recent_tracks(results, artist_id)
+    results = sp.artist_albums(artist_id, album_type='single')
+    add_recent_tracks(results, artist_id)
+    
 
 sp = getSpotipy()
-playlist_id = create_playlist(sp, 'new_music_friday_6', 'All new music released after last friday')
+playlist_id = create_playlist(sp, 'new_music_friday_7_5', 'All new music released after last friday')
 
+
+accepted_dates = []
 ids = load_data('saved_artist.csv')
 for id in ids:
     search_through_albums(id)
-
+print('accepted_dates: ' + str(accepted_dates))
 

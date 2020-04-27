@@ -79,7 +79,7 @@ def clean_playlist(playlist_name):
 
 
 def clean_playlists():
-    clean_playlist('new_music_friday_6')
+    clean_playlist('new_music_friday_7_5')
     clean_playlist('the_charts')
 
 sp = getSpotipy()

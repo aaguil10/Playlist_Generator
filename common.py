@@ -3,6 +3,18 @@ import os
 
 username = os.environ['SPOTIPY_USERNAME']
 
+# Will return a list with all the results in spotipy_call
+# Ex. sp.album(album_id) --> getAllResults(sp.album, album_id)
+def getAllResults(sp, spotipy_call, param):
+    data = []
+    results = spotipy_call(param)
+    data.extend(results['items'])
+    while results['next']:
+        results = sp.next(results)
+        data.extend(results['items'])
+    return data
+
+
 # Checks if playlist exist. Crates one if not.
 # Returns playlist id.
 def create_playlist(sp, name, description):

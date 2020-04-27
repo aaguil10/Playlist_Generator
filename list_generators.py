@@ -91,16 +91,24 @@ def create_saved_artist_cvs_sorted(sp):
 def get_id_from(obj):
     return obj['id']
 
-def add_artist_albums(artist_id, albums):
-    results = sp.artist_albums(artist_id)
-    for result in results['items']:
-        if result['uri'] not in albums:
-            albums.append(result['uri'])
-    while results['next']:
-        results = sp.next(results)
+artist_cache = {}
+def add_artist_albums(artist_id, parent_albums):
+    albums = []
+    if artist_id in artist_cache:
+        print('Got cached albums: ' + str(len(artist_cache[artist_id])))
+        albums = artist_cache[artist_id]
+    else:
+        results = sp.artist_albums(artist_id)
         for result in results['items']:
-            if result['uri'] not in albums:
+            if result['uri'] not in parent_albums:
                 albums.append(result['uri'])
+        while results['next']:
+            results = sp.next(results)
+            for result in results['items']:
+                if result['uri'] not in parent_albums:
+                    albums.append(result['uri'])
+        artist_cache[artist_id] = albums
+    parent_albums.extend(albums)
 
 
 def get_tracks_from_album_tracks_csv(album_id):
@@ -110,9 +118,8 @@ def get_tracks_from_album_tracks_csv(album_id):
         line_count = 0
         for row in csv_reader:
             if line_count != 0:
-#                print('row[2]: ' + row[2] + ' album_id: ' + album_id)
-                if row[2] == album_id:
-                    result.append({'id': row[0], 'name': row[1]})
+                if row[3] == album_id:
+                    result.append({'id': row[0], 'name': row[1], 'uri':row[2]})
             line_count += 1
     return result
 
@@ -121,12 +128,12 @@ def save_album_tracks(album_id):
     tracks = get_tracks_from_album_tracks_csv(album_id)
     if len(tracks) == 0:
         album = sp.album(album_id)
-        with open('album_tracks.csv', 'a', newline='') as csvfile:
-            fieldnames = ['id', 'name', 'album_id']
+        with open('album_tracks.csv', 'w', newline='') as csvfile:
+            fieldnames = ['id', 'name', 'uri', 'album_uri']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for trk in album['tracks']['items']:
-                writer.writerow({'id': trk['id'], 'name': trk['name'], 'album_id': album_id})
+                writer.writerow({'id': trk['id'], 'name': trk['name'], 'uri': trk['uri'], 'album_uri': album_id})
         tracks = save_album_tracks(album_id)
     return tracks
 
