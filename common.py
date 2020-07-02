@@ -60,6 +60,17 @@ def in_history(id):
                     return True
             line_count += 1
     return False
+    
+def key_in_history(key):
+    with open('csv/history.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                if row[1] == key:
+                    return True
+            line_count += 1
+    return False
 
 # Returns list of the first column in cvs file
 def load_data(cvs_name):
