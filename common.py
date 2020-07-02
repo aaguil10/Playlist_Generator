@@ -49,6 +49,17 @@ def in_file(file, id):
                     return True
             line_count += 1
     return False
+    
+def in_history(id):
+    with open('played_history.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                if row[0] == id:
+                    return True
+            line_count += 1
+    return False
 
 # Returns list of the first column in cvs file
 def load_data(cvs_name):
@@ -61,3 +72,23 @@ def load_data(cvs_name):
                 ids.append(row[0])
             line_count += 1
     return ids
+    
+# Returns list of the Nth column in cvs file
+def load_data_at(cvs_name, nth_column):
+    ids = []
+    with open(cvs_name) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                ids.append(row[nth_column])
+            line_count += 1
+    return ids
+
+def create_key(track):
+    keys = []
+    for artist in track['artists']:
+        keys.append(track['name'] + '_' + artist['name'])
+    return keys
+
+

@@ -5,26 +5,16 @@ import csv
 import os
 import time
 from common import for_each_element_in_history
+from common import in_history
 
 
 username = os.environ['SPOTIPY_USERNAME']
 PAUSE_TIME = .05
 
 # Adds all recently played tracks to CVS file.
-
-def in_file(id):
-    with open('played_history.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count != 0:
-                if row[0] == id:
-                    return True
-            line_count += 1
-    return False
     
 def add_to_cvs(track):
-    if not in_file(track['id']):
+    if not in_history(track['id']):
         with open('played_history.csv', 'a', newline='') as csvfile:
             print('Added ' + track['name'])
             fieldnames = ['id', 'name', 'uri']
@@ -36,14 +26,6 @@ def add_recents_to_played_history(sp):
     for result in results['items']:
         add_to_cvs(result['track'])
             
-def add_saved_to_played_history(sp):
-    results = sp.current_user_saved_tracks()
-    for result in results['items']:
-        add_to_cvs(result['track'])
-    while results['next']:
-        results = sp.next(results)
-        for result in results['items']:
-            add_to_cvs(result['track'])
 
 def add_from_history_playlist():
     tracks = []
@@ -66,13 +48,13 @@ def clean_playlist(playlist_name):
     remove_tracks = []
     for result in results['items']:
         track_id = result['track']['id']
-        if in_file(track_id):
+        if in_history(track_id):
             remove_tracks.append(track_id)
     while results['next']:
         results = sp.next(results)
         for result in results['items']:
             track_id = result['track']['id']
-            if in_file(track_id):
+            if in_history(track_id):
                 remove_tracks.append(track_id)
 #    for track in remove_tracks:
 #        print('removing : ' + str(remove_tracks))
@@ -105,3 +87,4 @@ sp = getSpotipy()
 add_recents_to_played_history(sp)
 add_from_history_playlist()
 clean_playlists()
+

@@ -8,7 +8,7 @@ import os
 username = os.environ['SPOTIPY_USERNAME']
 
 def getSpotipy():
-    scope = 'user-library-read,playlist-modify-private,playlist-modify-public,user-read-recently-played'
+    scope = 'user-library-read,playlist-modify-private,playlist-modify-public,user-read-recently-played, user-library-modify'
     token = util.prompt_for_user_token(username, scope)
     if token:
         return spotipy.Spotify(auth=token)
