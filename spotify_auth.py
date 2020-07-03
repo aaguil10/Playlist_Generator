@@ -15,3 +15,5 @@ def getSpotipy():
     else:
         print("Can't get token for", username)
         return null
+
+sp = getSpotipy()

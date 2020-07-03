@@ -1,7 +1,10 @@
 import csv
 import os
+import time
+from spotify_auth import sp
 
 username = os.environ['SPOTIPY_USERNAME']
+PAUSE_TIME = .05
 
 # Will return a list with all the results in spotipy_call
 # Ex. sp.album(album_id) --> getAllResults(sp.album, album_id)
@@ -14,6 +17,11 @@ def getAllResults(sp, spotipy_call, param):
         data.extend(results['items'])
     return data
 
+def tracks_to_ids(tracks):
+    results = []
+    for track in tracks:
+        results.append(track['id'])
+    return results
 
 # Checks if playlist exist. Crates one if not.
 # Returns playlist id.
@@ -102,4 +110,44 @@ def create_key(track):
         keys.append(track['name'] + '_' + artist['name'])
     return keys
 
+def remove_duplicates(track_list):
+    keys = []
+    result = []
+    for track in track_list:
+        curr_keys = create_key(track)
+        in_list = True
+        for curr_key in curr_keys:
+            if curr_key not in keys:
+                in_list = False
+                keys.append(curr_key)
+        if not in_list:
+            result.append(track)
+    return result
 
+
+def remove_history_tracks(track_list):
+    result = []
+    for track in track_list:
+        id = track['id']
+        if in_history(id):
+            continue
+        curr_keys = create_key(track)
+        is_in_history = True
+        for curr_key in curr_keys:
+            if not key_in_history(curr_key):
+                is_in_history = False
+        if not is_in_history:
+            result.append(track)
+    return result
+
+def add_to_playlist(playlist_id, track_ids):
+    if len(track_ids) < 100:
+        if track_ids:
+            time.sleep(PAUSE_TIME)
+            sp.user_playlist_add_tracks(username, playlist_id, track_ids)
+    else:
+        while track_ids:
+            curr = track_ids[:100]
+            track_ids = track_ids[100:]
+            time.sleep(PAUSE_TIME)
+            sp.user_playlist_add_tracks(username, playlist_id, curr)
