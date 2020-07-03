@@ -24,7 +24,7 @@ REMIX_INDICATORS = [' - ', 'remix', 'version']
 ALEJANDRO = 'ALEJANDRO'
 JESSICA = 'JESSICA'
 TEST = 'TEST'
-CURRENT_USER = ALEJANDRO
+CURRENT_USER = JESSICA
 
 playlist_title = {
     JESSICA: 'jessica_jammers_2',
@@ -98,15 +98,9 @@ def main():
         time.sleep(PAUSE_TIME)
         results = sp.artist_albums(artist_id, album_type='album')
         artist_name = '-'
-#        if len(results['items']) > 0:
-#            artist_name = results['items'][0]['artists'][0]['name']
-#            print(str(index) + '/' + num_ids + ': ' + artist_name)
         new_songs.extend(get_recent_tracks(results, artist_id))
         time.sleep(PAUSE_TIME)
         results = sp.artist_albums(artist_id, album_type='single')
-#        if artist_name == '-' and len(results['items']) > 0:
-#            artist_name = results['items'][0]['artists'][0]['name']
-#            print(str(index) + '/' + num_ids + ': ' + artist_name)
         new_songs.extend(get_recent_tracks(results, artist_id))
     print('New songs: ' + str(len(new_songs)))
     
@@ -125,7 +119,7 @@ def main():
         name = track['name']
         add_to_main = True
         for indicator in REMIX_INDICATORS:
-            if indicator in name:
+            if indicator in name.lower():
                 remix_bucket.append(track)
                 add_to_main = False
         if add_to_main:
