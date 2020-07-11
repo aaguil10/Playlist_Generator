@@ -141,6 +141,7 @@ def remove_history_tracks(track_list):
     return result
 
 def add_to_playlist(playlist_id, track_ids):
+    if len(track_ids) == 0: return
     if len(track_ids) < 100:
         if track_ids:
             time.sleep(PAUSE_TIME)
@@ -151,3 +152,25 @@ def add_to_playlist(playlist_id, track_ids):
             track_ids = track_ids[100:]
             time.sleep(PAUSE_TIME)
             sp.user_playlist_add_tracks(username, playlist_id, curr)
+
+def tracks_equal(track1, track2):
+    track1_keys = create_key(track1)
+    track2_keys = create_key(track2)
+    isEqual = True
+    for track1_key in track1_keys:
+        if track1_key not in track2_keys:
+            isEqual = False
+            break
+    return isEqual
+
+def find_duplicates(track_list):
+    duplicates = []
+    curr_list = track_list
+    while len(curr_list) > 0:
+        curr_track = curr_list[0]
+        curr_list = curr_list[1:]
+        for c in curr_list:
+            if tracks_equal(curr_track, c):
+                duplicates.append(c)
+                break
+    return duplicates

@@ -95,13 +95,18 @@ def main():
         artist_name = artist_names[index]
         index = index + 1
         print(str(index) + '/' + num_ids + ': ' + artist_name)
-        time.sleep(PAUSE_TIME)
-        results = sp.artist_albums(artist_id, album_type='album')
-        artist_name = '-'
-        new_songs.extend(get_recent_tracks(results, artist_id))
-        time.sleep(PAUSE_TIME)
-        results = sp.artist_albums(artist_id, album_type='single')
-        new_songs.extend(get_recent_tracks(results, artist_id))
+        try:
+            time.sleep(PAUSE_TIME)
+            results = sp.artist_albums(artist_id, album_type='album')
+            new_songs.extend(get_recent_tracks(results, artist_id))
+        except Exception as e:
+            print(e)
+        try:
+            time.sleep(PAUSE_TIME)
+            results = sp.artist_albums(artist_id, album_type='single')
+            new_songs.extend(get_recent_tracks(results, artist_id))
+        except Exception as e:
+            print(e)
     print('New songs: ' + str(len(new_songs)))
     
     print('Removing duplicates...')

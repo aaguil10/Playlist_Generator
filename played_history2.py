@@ -8,6 +8,10 @@ from common import for_each_element_in_history
 from common import in_history
 from common import create_key
 from common import key_in_history
+from common import find_duplicates
+from common import tracks_to_ids
+from get_playlist import remove_duplicates_in_playlist
+from get_playlist import get_playlist_tracks
 
 
 username = os.environ['SPOTIPY_USERNAME']
@@ -53,6 +57,18 @@ def add_from_history_playlist():
         add_to_cvs(track)
         sp.user_playlist_remove_all_occurrences_of_tracks(username, history_id, [track['id']])
 
+def remove_tracks_from_playlist(track_ids, playlist_name):
+    playlist_id = create_playlist(sp, playlist_name, '')
+    print('Removing ' + str(len(track_ids)) + ' tracks from ' + playlist_name)
+    if len(track_ids) < 100:
+        if track_ids:
+            time.sleep(PAUSE_TIME)
+            sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, track_ids)
+    else:
+        for track_id in track_ids:
+            time.sleep(PAUSE_TIME)
+            sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, [track_id])
+
 
 def clean_playlist(playlist_name):
     playlist_id = create_playlist(sp, playlist_name, '')
@@ -68,9 +84,6 @@ def clean_playlist(playlist_name):
     remove_tracks = []
     for track in playlist_tracks:
         id = track['id']
-#        if in_history(id):
-#            remove_tracks.append(id)
-#            continue
         keys = create_key(track)
         # In case song has same name but extra artist for remix.
         should_remove = True
@@ -80,29 +93,19 @@ def clean_playlist(playlist_name):
                 break
         if should_remove:
             remove_tracks.append(id)
-            
-    print('Removing ' + str(len(remove_tracks)) + ' tracks from ' + playlist_name)
-    if len(remove_tracks) < 100:
-        if remove_tracks:
-            time.sleep(PAUSE_TIME)
-            sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, remove_tracks)
-    else:
-        for track_id in remove_tracks:
-            time.sleep(PAUSE_TIME)
-            sp.user_playlist_remove_all_occurrences_of_tracks(username, playlist_id, [track_id])
+    remove_tracks_from_playlist(remove_tracks, playlist_name)
+    remove_duplicates_in_playlist(playlist_name)
+
 
 
 def clean_playlists():
-    clean_playlist('new_music_friday_9')
+    clean_playlist('new_music_friday_10')
+    clean_playlist('discover_weekly')
     clean_playlist('the_charts')
-    clean_playlist('jessi_randos')
 
 sp = getSpotipy()
 
 # Test
-#for_each_element_in_history(add_dupicate_tracks)
-#add_saved_to_played_history(sp)
-#add_recents_to_played_history(sp)
 #clean_playlist('new_music_friday_6')
 
 # Main
