@@ -1,6 +1,8 @@
 from spotify_auth import getSpotipy
 from common import create_playlist
 from common import load_data_at
+from common import key_in_history
+from common import create_key
 from duplicates import get_duplicates
 import pprint
 import csv
@@ -101,43 +103,7 @@ def remove_row(values):
             if should_add:
                 writer.writerow(row)
                 
-                
-def save_finished_ids(values):
-    h = load_finished_ids()
-    with open('mark_saved_tracks_finished_ids.csv', 'a', newline='') as csvfile:
-        fieldnames = ['id']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        for id in values:
-            if id not in h:
-                writer.writerow({'id': id})
-                
-                
-def load_finished_ids():
-    data = []
-    with open('mark_saved_tracks_finished_ids.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count != 0:
-                data.append(row[0])
-            line_count += 1
-    return data
-    
-def loadSavedTracks():
-    data = []
-    with open('mark_saved_tracks.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count != 0:
-                data.append(row)
-            line_count += 1
-#    tracks = []
-#    for item in data:
-#        time.sleep(PAUSE_TIME)
-#        track = sp.track(item)
-#        tracks.append(track)
-    return data
+        
 
 #res = loadSavedTracks()
 #print('results: ' + str(len(res)))
@@ -201,3 +167,73 @@ def get_all_charts_playlist_ids(playlist_id):
 #        continue
 #    time.sleep(PAUSE_TIME)
 #    sp.user_playlist_add_tracks(username, fl_id, [id])
+
+
+def save_finished_ids(values):
+    h = load_finished_ids()
+    with open('mark_saved_tracks_finished_ids.csv', 'a', newline='') as csvfile:
+        fieldnames = ['id']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        for id in values:
+            if id not in h:
+                writer.writerow({'id': id})
+                
+                
+def load_finished_ids():
+    data = []
+    with open('mark_saved_tracks_finished_ids.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                data.append(row[0])
+            line_count += 1
+    return data
+    
+def loadHistoryIds():
+    data = []
+    with open('played_history.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                data.append(row)
+            line_count += 1
+#    tracks = []
+#    for item in data:
+#        time.sleep(PAUSE_TIME)
+#        track = sp.track(item)
+#        tracks.append(track)
+    return data
+
+
+def key_in_historyTest(key):
+    with open('cvs_test/history.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                if row[1] == key:
+                    return True
+            line_count += 1
+    return False
+
+def add_to_cvs(track):
+    keys = create_key(track)
+    for key in keys:
+        if not key_in_history(key):
+            with open('csv/history.csv', 'a', newline='') as csvfile:
+                print('Added ' + key)
+                fieldnames = ['id', 'key']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writerow({'id': track['id'], 'key': key})
+
+#total = str(len(loadHistoryIds()))
+#index = 0
+#ids = loadHistoryIds()
+#for id in ids:
+#    index = index + 1
+#    print(str(index) + '/' + total + ': ' + id[0])
+#    time.sleep(PAUSE_TIME)
+#    track = sp.track(id[0])
+#    add_to_cvs(track)

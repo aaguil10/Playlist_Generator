@@ -35,6 +35,7 @@ def copy_playlist(playlist_id, new_playlist_name):
     for curr in curr_playlist_tracks:
         if curr not in duplicate_tracks:
             ids.extend(tracks_to_ids([curr]))
+    print('Adding ' + str(len(ids)) + ' tracks to ' + new_playlist_name)
     add_to_playlist(new_playlist_id, ids)
     
 def remove_specific_occurrences(elements, playlist_name):
@@ -45,9 +46,12 @@ def remove_specific_occurrences(elements, playlist_name):
             time.sleep(PAUSE_TIME)
             sp.user_playlist_remove_specific_occurrences_of_tracks(username, playlist_id, elements)
     else:
-        for track_id in elements:
-            time.sleep(PAUSE_TIME)
-            sp.user_playlist_remove_specific_occurrences_of_tracks(username, playlist_id, [elements])
+        time.sleep(PAUSE_TIME)
+        curr = elements[:100]
+        sp.user_playlist_remove_specific_occurrences_of_tracks(username, playlist_id, curr)
+        # This needs to be recursive because the position numbers change
+        # once user_playlist_remove_specific_occurrences_of_tracks is called.
+        remove_duplicates_in_playlist(playlist_name)
 
 def remove_duplicates_in_playlist(playlist_name):
     playlist_id = create_playlist(sp, playlist_name, '')

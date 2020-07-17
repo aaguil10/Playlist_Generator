@@ -19,7 +19,7 @@ from common import add_to_playlist
 
 
 username = os.environ['SPOTIPY_USERNAME']
-REMIX_INDICATORS = [' - ', 'remix', 'version']
+REMIX_INDICATORS = [' - ', 'remix', 'version', 'mix']
 
 ALEJANDRO = 'ALEJANDRO'
 JESSICA = 'JESSICA'
@@ -95,18 +95,18 @@ def main():
         artist_name = artist_names[index]
         index = index + 1
         print(str(index) + '/' + num_ids + ': ' + artist_name)
-        try:
-            time.sleep(PAUSE_TIME)
-            results = sp.artist_albums(artist_id, album_type='album')
-            new_songs.extend(get_recent_tracks(results, artist_id))
-        except Exception as e:
-            print(e)
-        try:
-            time.sleep(PAUSE_TIME)
-            results = sp.artist_albums(artist_id, album_type='single')
-            new_songs.extend(get_recent_tracks(results, artist_id))
-        except Exception as e:
-            print(e)
+#        try:
+        time.sleep(PAUSE_TIME)
+        results = sp.artist_albums(artist_id, album_type='album')
+        new_songs.extend(get_recent_tracks(results, artist_id))
+#        except Exception as e:
+#            print(e)
+#        try:
+        time.sleep(PAUSE_TIME)
+        results = sp.artist_albums(artist_id, album_type='single')
+        new_songs.extend(get_recent_tracks(results, artist_id))
+#        except Exception as e:
+#            print(e)
     print('New songs: ' + str(len(new_songs)))
     
     print('Removing duplicates...')
